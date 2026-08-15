@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import dbConnect from "./dbConnect";
 
 type ConnectionObject = {
   isConnected?: number;
