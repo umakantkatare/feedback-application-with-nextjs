@@ -5,21 +5,26 @@ import { getToken } from "next-auth/jwt";
 
 export async function proxy(request: NextRequest) {
   const token = await getToken({ req: request });
-  const url = request.nextUrl;
+  const { pathname } = request.nextUrl;
 
-  if (
-    token &&
-    (url.pathname.startsWith("/signin") ||
-      url.pathname.startsWith("/signup") ||
-      url.pathname.startsWith("/verify") ||
-      url.pathname.startsWith("/"))
-  ) {
+  const isAuthPage =
+    pathname.startsWith("/signin") ||
+    pathname.startsWith("/signup") ||
+    pathname.startsWith("/verify");
+
+  const isDashboard = pathname.startsWith("/dashboard");
+
+  if (token && isAuthPage) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
-  return NextResponse.redirect(new URL("/", request.url));
+  if (!token && isDashboard) {
+    return NextResponse.redirect(new URL("/signin", request.url));
+  }
+
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/signin", "/signup","/dashboard/:path*", "/verify/:path*"],
+  matcher: ["/", "/signin", "/signup", "/verify/:path*", "/dashboard/:path*"],
 };
