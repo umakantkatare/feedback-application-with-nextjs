@@ -57,14 +57,14 @@ const SigninPage = () => {
   const onSubmit = async (data: z.infer<typeof signUpSchema>) => {
     SetSubmit(true);
     try {
-      const response = await axios.post<ApiResponse>(`/api/sign-up`, data);
+      const response = await axios.post<ApiResponse>(`/api/signup`, data);
 
       toast.add({
         title: "Success",
         description: response.data.message,
       });
 
-      router.replace(`/verify/${encodeURIComponent(data.username)}`);
+      router.replace(`/verifycode/${encodeURIComponent(data.username)}`);
     } catch (error) {
       const axiosError = error as AxiosError<ApiResponse>;
       setUsernameMessage(
