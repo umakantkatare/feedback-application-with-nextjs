@@ -32,7 +32,10 @@ export async function GET(request: Request) {
         },
       },
       {
-        $unwind: "$messages",
+        $unwind: {
+          path: "$messages",
+          preserveNullAndEmptyArrays: true,
+        },
       },
       {
         $sort: { "messages.CreatedAt": -1 },
