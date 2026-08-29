@@ -28,7 +28,7 @@ export async function GET(request: Request) {
     const user = await UserModel.aggregate([
       {
         $match: {
-          id: userId,
+          _id: userId,
         },
       },
       {
@@ -46,7 +46,7 @@ export async function GET(request: Request) {
         },
       },
     ]);
-
+    
     if (!user || user.length === 0) {
       return Response.json(
         {
