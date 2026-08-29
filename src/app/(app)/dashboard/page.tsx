@@ -15,20 +15,27 @@ import { Check, Copy, Loader2, RefreshCcw } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 const DashboardPage = () => {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSwitchLoading, setIsSwitchLoading] = useState(false);
-  const [isCopied, setIsCopied] = useState(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isSwitchLoading, setIsSwitchLoading] = useState<boolean>(false);
+  const [isCopied, setIsCopied] = useState<boolean>(false);
+
   const handleDeleteMessage = (messageId: string) => {
-    setMessages(messages.filter((message) => message._id !== messageId));
+    setMessages(
+      messages.filter((message) => message._id.toString() !== messageId),
+    );
   };
 
   const { data: session } = useSession();
 
   const form = useForm({
     resolver: zodResolver(acceptMessageSchema),
+    defaultValues: {
+      acceptMessages: false,
+    },
   });
 
   const { register, watch, setValue } = form;
@@ -210,15 +217,18 @@ const DashboardPage = () => {
             </div>
 
             <div className="flex shrink-0 items-center gap-3">
-              <span
+              <Label
+                htmlFor="acceptMessages"
                 className={`hidden text-sm font-medium sm:block ${
                   acceptMessage ? "text-green-600" : "text-muted-foreground"
                 }`}
               >
                 {acceptMessage ? "On" : "Off"}
-              </span>
+              </Label>
 
               <Switch
+                {...register("acceptMessages")}
+                id="acceptMessages"
                 checked={acceptMessage}
                 onCheckedChange={handleSwitchChange}
                 disabled={isSwitchLoading}
@@ -245,7 +255,10 @@ const DashboardPage = () => {
               type="button"
               variant="outline"
               size="icon"
-              onClick={() => fetchMessages(true)}
+              onClick={(e) => {
+                e.preventDefault();
+                fetchMessages(true);
+              }}
               disabled={isLoading}
               aria-label="Refresh messages"
               title="Refresh messages"
@@ -262,7 +275,7 @@ const DashboardPage = () => {
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:gap-6">
               {messages.map((message) => (
                 <MessageCard
-                  key={message._id}
+                  key={message._id.toString()}
                   message={message}
                   onMessageDelete={handleDeleteMessage}
                 />
