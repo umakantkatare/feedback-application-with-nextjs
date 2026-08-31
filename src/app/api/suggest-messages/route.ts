@@ -1,38 +1,37 @@
-import { openai } from "@ai-sdk/openai";
-import { streamText } from "ai";
+import { google } from "@ai-sdk/google";
+import { generateText } from "ai";
 
 export async function POST() {
   try {
     const prompt = `
-Create a list of three open-ended and engaging questions formatted
-as a single string. Each question should be separated by "||".
+Generate exactly 3 interesting and friendly anonymous messages.
 
-These questions are for an anonymous social messaging platform,
-like Qooh.me, and should be suitable for a diverse audience.
-
-Avoid personal or sensitive topics. Focus on universal themes that
-encourage friendly interaction.
+Rules:
+- Each message should be open-ended.
+- Avoid personal, sensitive, political, or offensive topics.
+- Messages should encourage the recipient to reply.
+- Keep each message short.
+- Return ONLY the 3 messages.
+- Separate each message using ||.
 
 Example:
-What's a hobby you've recently started?||
-If you could have dinner with any historical figure, who would it be?||
-What's a simple thing that makes you happy?
-
-Ensure the questions are intriguing, foster curiosity, and contribute
-to a positive and welcoming conversational environment.
+What's a hobby you've recently started?||What is something you've always wanted to learn?||What's one small thing that makes your day better?
 `;
 
-    const result = streamText({
-      model: openai("gpt-5.5"),
+    const { text } = await generateText({
+      model: google("gemini-3.6-flash"),
       prompt,
     });
 
-    return result.toTextStreamResponse();
-  } catch (error) {
-    console.error("An unexpected error occurred:", error);
-
-    return new Response("Internal Server Error", {
-      status: 500,
+    return Response.json({
+      messages: text.split("||").map((message) => message.trim()),
     });
+  } catch (error) {
+    console.error("Suggest message error:", error);
+
+    return Response.json(
+      { message: "Failed to generate messages" },
+      { status: 500 },
+    );
   }
 }
